@@ -5,6 +5,8 @@ from aiogram import types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.filters.state import StatesGroup
+from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import KeyboardButton
 import asyncio
 
 
@@ -20,16 +22,35 @@ api = ''
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
+kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+but_calc = KeyboardButton(text='Рассчитать')
+but_info = KeyboardButton(text='Информация')
+kb_start.row(but_calc, but_info)
+
+kb_gender = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+but_man = KeyboardButton(text='М')
+but_woman = KeyboardButton(text='Ж')
+kb_gender.row(but_man, but_woman)
+
+kb_activity = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+but_activity_1 = KeyboardButton(text='1')
+but_activity_2 = KeyboardButton(text='2')
+but_activity_3 = KeyboardButton(text='3')
+but_activity_4 = KeyboardButton(text='4')
+but_activity_5 = KeyboardButton(text='5')
+kb_activity.row(but_activity_1, but_activity_2, but_activity_3,but_activity_4, but_activity_5)
+
 @dp.message_handler(commands=['start'])
 async def start(message):
     await message.answer(f'Привет, {message.from_user["first_name"]}! '
-                         f'Я бот помогающий твоему здоровью.')
-    await message.answer('Для расчета нормы калорий введите слово: "Calories"')
+                         f'Я бот помогающий твоему здоровью.', reply_markup=kb_start)
+    # await message.answer('Для расчета нормы калорий введите слово: "Рассчитать"')
 
 
-@dp.message_handler(text=['Calories', 'calories'])
+@dp.message_handler(text=['Рассчитать'])
 async def set_gender(message):
-    await message.answer('Введите свой пол (М или Ж):')
+    # await message.answer('Введите свой пол (М или Ж):')
+    await message.answer('Выберите свой пол:', reply_markup=kb_gender)
     await UserState.gender.set()
 
 
@@ -41,7 +62,7 @@ async def set_activity(message, state):
                          '2 - Слабая активность\n'
                          '3 - Средняя активность\n'
                          '4 - Высокая активность\n'
-                         '5 - Экстра активность')
+                         '5 - Экстра активность', reply_markup=kb_activity)
     await UserState.activity.set()
 
 
