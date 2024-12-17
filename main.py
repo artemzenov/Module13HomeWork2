@@ -7,6 +7,8 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.dispatcher.filters.state import StatesGroup
 from aiogram.types import ReplyKeyboardMarkup
 from aiogram.types import KeyboardButton
+from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton
 import asyncio
 
 
@@ -40,6 +42,11 @@ but_activity_4 = KeyboardButton(text='4')
 but_activity_5 = KeyboardButton(text='5')
 kb_activity.row(but_activity_1, but_activity_2, but_activity_3,but_activity_4, but_activity_5)
 
+kb_inline = InlineKeyboardMarkup()
+button_inline_calories = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
+button_inline_formulas = InlineKeyboardButton(text='Формула расчета', callback_data='formulas')
+kb_inline.row(button_inline_calories, button_inline_formulas)
+
 @dp.message_handler(commands=['start'])
 async def start(message):
     await message.answer(f'Привет, {message.from_user["first_name"]}! '
@@ -47,10 +54,23 @@ async def start(message):
     # await message.answer('Для расчета нормы калорий введите слово: "Рассчитать"')
 
 
+@dp.callback_query_handler(text='formulas')
+async def get_formulas(call):
+    await call.message.answer('Для мужчины: (10 x вес (кг) + 6.25 x рост (см) – 5 x возраст (г) + 5) x A')
+    await call.message.answer('Для женщины: (10 x вес (кг) + 6.25 x рост (см) – 5 x возраст (г) – 161) x A')
+    await call.answer()
+
+
 @dp.message_handler(text=['Рассчитать'])
-async def set_gender(message):
+async def main_menu(message):
+    await message.answer('Выберите опцию:', reply_markup=kb_inline)
+
+
+@dp.callback_query_handler(text='calories')
+async def set_gender(call):
     # await message.answer('Введите свой пол (М или Ж):')
-    await message.answer('Выберите свой пол:', reply_markup=kb_gender)
+    await call.message.answer('Выберите свой пол:', reply_markup=kb_gender)
+    await call.answer()
     await UserState.gender.set()
 
 
